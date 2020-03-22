@@ -9,7 +9,7 @@ defmodule JumpUp.WakeUpMegaboomTest do
       JumpUp.WakeUpMegaboom.run()
 
       assert_called(
-        System.cmd("gatttol", [
+        System.cmd("gatttool", [
           "-b",
           "00:11:22:33:44:55",
           "--char-write-req",
