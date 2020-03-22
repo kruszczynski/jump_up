@@ -2,17 +2,9 @@ defmodule JumpUp do
   @moduledoc """
   Documentation for JumpUp.
   """
+  use Application
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> JumpUp.hello()
-      :world
-
-  """
-  def hello do
-    :world
+  def start(_type, _args) do
+    {:ok, self()}
   end
 end
