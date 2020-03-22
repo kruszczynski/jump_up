@@ -3,6 +3,8 @@ defmodule JumpUp.WakeUpMegaboom do
   @value Application.fetch_env!(:jump_up, :megaboom)[:source_value]
   @mac Application.fetch_env!(:jump_up, :megaboom)[:target_mac]
 
+  require Logger
+
   def run do
     options = [
       "-b",
@@ -12,6 +14,13 @@ defmodule JumpUp.WakeUpMegaboom do
       "--value=#{@value}"
     ]
 
-    System.cmd("gatttool", options)
+    {response, exit_code} = System.cmd("gatttool", options)
+
+    case exit_code do
+      0 -> Logger.info("Successfully turned on megaboom")
+      1 -> Logger.error("Megaboom turn on failed")
+    end
+
+    {response, exit_code}
   end
 end
