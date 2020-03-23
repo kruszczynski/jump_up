@@ -10,6 +10,7 @@ defmodule JumpUp.WakeUp do
 
   def start() do
     Megaboom.turn_on()
+    Process.sleep(5_000)
     Player.start_playing()
   end
 end
