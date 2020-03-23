@@ -15,10 +15,9 @@ if Mix.env() == :prod do
   import_config("secret.exs")
 
   config :logger,
-    backends: [{LoggerFileBackend, :error_log}],
-    level: :info
+    backends: [{LoggerFileBackend, :error_log}]
 
   config :logger, :error_log,
     path: "log/app.log",
-    level: :debug
+    level: :info
 end

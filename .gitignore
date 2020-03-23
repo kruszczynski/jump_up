@@ -24,4 +24,7 @@ jump_up-*.tar
 
 # prod config
 
-config/secret.exs
+/config/secret.exs
+
+# log
+/log/
