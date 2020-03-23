@@ -1,6 +1,7 @@
 defmodule JumpUp.WakeUp do
   require Logger
-  alias JumpUp.WakeUpMegaboom
+  alias JumpUp.WakeUp.Megaboom
+  alias JumpUp.WakeUp.Player
 
   def trigger() do
     Logger.info("wake up procedure initiated")
@@ -8,6 +9,7 @@ defmodule JumpUp.WakeUp do
   end
 
   def start() do
-    WakeUpMegaboom.run()
+    Megaboom.turn_on()
+    Player.start_playing()
   end
 end

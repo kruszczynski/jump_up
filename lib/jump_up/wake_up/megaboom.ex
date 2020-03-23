@@ -1,11 +1,11 @@
-defmodule JumpUp.WakeUpMegaboom do
+defmodule JumpUp.WakeUp.Megaboom do
   @handle "0x0003"
   @value Application.fetch_env!(:jump_up, :megaboom)[:source_value]
   @mac Application.fetch_env!(:jump_up, :megaboom)[:target_mac]
 
   require Logger
 
-  def run do
+  def turn_on do
     options = [
       "-b",
       @mac,
