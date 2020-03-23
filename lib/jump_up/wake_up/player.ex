@@ -9,17 +9,20 @@ defmodule JumpUp.WakeUp.Player do
   alias Porcelain.Process, as: Proc
 
   def start_playing do
-    cmd = Enum.join([@player_exe] ++ @default_options ++ [@music_dir], " ")
-    Logger.info("Playing with: #{cmd}")
+    options = @default_options ++ [@music_dir]
+    Logger.info("Playing with options: #{options}")
 
     proc =
-      Porcelain.spawn_shell(cmd,
+      Porcelain.spawn(@player_exe, options,
         in: :receive,
         out: {:path, "log/player.log"}
       )
 
     Logger.info("Successfully started Playing")
 
+    Process.sleep(20_000)
+    Proc.send_input(proc, "+")
+    Logger.info("Volume turned up")
     Process.sleep(20_000)
     Proc.send_input(proc, "+")
     Logger.info("Volume turned up")

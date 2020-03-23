@@ -8,6 +8,7 @@ defmodule JumpUp.Timer do
 
   def start_link do
     Logger.info("#{__MODULE__} starting")
+    Schedule.print_schedule()
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
 
