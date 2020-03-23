@@ -24,7 +24,6 @@ defmodule JumpUp.MixProject do
   defp deps do
     [
       {:porcelain, "~> 2.0"},
-      {:logger_file_backend, "~> 0.0.11"},
       {:mock, "~> 0.3.0", only: :test}
     ]
   end
