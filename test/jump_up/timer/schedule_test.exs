@@ -1,5 +1,5 @@
-defmodule JumpUp.Timer.Scheduletest do
-  use ExUnit.Case
+defmodule JumpUp.Timer.ScheduleTest do
+  use ExUnit.Case, async: true
 
   alias JumpUp.Timer.Schedule
 
@@ -14,6 +14,12 @@ defmodule JumpUp.Timer.Scheduletest do
     test "is false before the time has come" do
       date = ~D[2019-12-31]
       time = ~T[06:00:00]
+      refute Schedule.time_has_come?(date, time)
+    end
+
+    test "is false after 30 minutes" do
+      date = ~D[2019-12-31]
+      time = ~T[07:16:00]
       refute Schedule.time_has_come?(date, time)
     end
 

@@ -1,4 +1,4 @@
-defmodule JumpUp.WakeUpMegaboomTest do
+defmodule JumpUp.WakeUp.MegaboomTest do
   use ExUnit.Case
 
   import Mock
@@ -7,7 +7,7 @@ defmodule JumpUp.WakeUpMegaboomTest do
     test 'when succeeds' do
       with_mock System,
         cmd: fn _command, _options -> {"Characteristic value was written successfully\n", 0} end do
-        JumpUp.WakeUpMegaboom.run()
+        JumpUp.WakeUp.Megaboom.turn_on()
 
         assert_called(
           System.cmd("gatttool", [

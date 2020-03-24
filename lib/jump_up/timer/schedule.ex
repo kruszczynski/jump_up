@@ -1,5 +1,6 @@
 defmodule JumpUp.Timer.Schedule do
   @schedule Application.fetch_env!(:jump_up, :timer)[:schedule]
+  @window_size 1800
   require Logger
 
   def print_schedule do
@@ -8,7 +9,10 @@ defmodule JumpUp.Timer.Schedule do
 
   def time_has_come?(date, time) do
     with true <- weekday?(date),
-         :gt <- Time.compare(time, hd(@schedule)) do
+         lower_bound <- hd(@schedule),
+         :gt <- Time.compare(time, lower_bound),
+         upper_bound <- Time.add(lower_bound, @window_size),
+         :lt <- Time.compare(time, upper_bound) do
       true
     else
       _ -> false
