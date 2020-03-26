@@ -4,7 +4,7 @@ defmodule JumpUp.Timer.Schedule do
   require Logger
 
   def print_schedule do
-    Logger.info("#{__MODULE__} read schedule #{inspect(@schedule)}")
+    Logger.info("#{__MODULE__} loaded following schedule: #{inspect(@schedule)}")
   end
 
   def time_has_come?(date, time) do

@@ -7,7 +7,7 @@ defmodule JumpUp.Timer do
   ## Client API
 
   def start_link do
-    Logger.info("#{__MODULE__} starting")
+    Logger.debug("#{__MODULE__} starting")
     Schedule.print_schedule()
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
@@ -26,7 +26,7 @@ defmodule JumpUp.Timer do
 
   @impl true
   def handle_info(:tick, state) do
-    Logger.info("#{__MODULE__} ticking")
+    Logger.debug("#{__MODULE__} ticking")
     {:ok, new_state} = handle_tick(state)
     schedule_tick()
     {:noreply, new_state}
@@ -44,7 +44,7 @@ defmodule JumpUp.Timer do
   end
 
   defp schedule_tick() do
-    Logger.info("#{__MODULE__} scheduling tick")
+    Logger.debug("#{__MODULE__} scheduling tick")
     Process.send_after(__MODULE__, :tick, 10_000)
   end
 end

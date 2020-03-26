@@ -4,7 +4,7 @@ defmodule JumpUp.WakeUp do
   alias JumpUp.WakeUp.Player
 
   def trigger() do
-    Logger.info("wake up procedure initiated")
+    Logger.info("Wake up procedure initiated")
     Task.start_link(__MODULE__, :start, [])
   end
 
