@@ -18,7 +18,7 @@ defmodule JumpUp.MixProject do
     [
       mod: {JumpUp, []},
       applications: [:porcelain, :ecto_sql, :postgrex],
-      extra_applications: [:logger]
+      extra_applications: [:logger, :ssl]
     ]
   end
 
