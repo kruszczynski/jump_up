@@ -1,7 +1,12 @@
 defmodule JumpUp.Timer.ScheduleTest do
-  use ExUnit.Case, async: true
+  use JumpUp.RepoCase, async: true
 
   alias JumpUp.Timer.Schedule
+
+  setup do
+    JumpUp.Factory.insert_all(:alarms)
+    :ok
+  end
 
   describe ".time_has_come?" do
     test "is false on weekend" do

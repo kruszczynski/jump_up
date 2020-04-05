@@ -7,11 +7,18 @@ defmodule JumpUp.Schema.Alarm do
     field(:enabled, :boolean)
   end
 
-  def day_to_number(%__MODULE__{day: "Monday"}), do: 1
-  def day_to_number(%__MODULE__{day: "Tuesday"}), do: 2
-  def day_to_number(%__MODULE__{day: "Wednesday"}), do: 3
-  def day_to_number(%__MODULE__{day: "Thursday"}), do: 4
-  def day_to_number(%__MODULE__{day: "Friday"}), do: 5
-  def day_to_number(%__MODULE__{day: "Saturday"}), do: 6
-  def day_to_number(%__MODULE__{day: "Sunday"}), do: 7
+  def changeset(alarm, params \\ %{}) do
+    alarm
+    |> Ecto.Changeset.cast(params, [:enabled, :time])
+  end
+end
+
+defimpl Inspect, for: JumpUp.Schema.Alarm do
+  def inspect(%{day: day, time: time, enabled: true}, _opts) do
+    "#{day}: #{inspect(time)}"
+  end
+
+  def inspect(%{day: day, enabled: false}, _opts) do
+    "#{day}: OFF"
+  end
 end

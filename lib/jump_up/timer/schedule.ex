@@ -1,25 +1,27 @@
 defmodule JumpUp.Timer.Schedule do
-  @schedule Application.fetch_env!(:jump_up, :timer)[:schedule]
-  @window_size 1800
+  @alarm_window_size 1800
   require Logger
+  alias JumpUp.Queries.AlarmQuery
 
   def print_schedule do
-    Logger.info("#{__MODULE__} loaded following schedule: #{inspect(@schedule)}")
+    Logger.info("#{__MODULE__} current schedule: #{inspect(schedule())}")
   end
 
-  def time_has_come?(date, time) do
-    with true <- weekday?(date),
-         lower_bound <- hd(@schedule),
-         :gt <- Time.compare(time, lower_bound),
-         upper_bound <- Time.add(lower_bound, @window_size),
-         :lt <- Time.compare(time, upper_bound) do
+  defp schedule do
+    AlarmQuery.all()
+  end
+
+  def time_has_come?(day, current_time) do
+    with day_num <- Date.day_of_week(day),
+         %{enabled: true, time: alarm_time} <- alarm_for(day_num),
+         :gt <- Time.compare(current_time, alarm_time),
+         upper_bound <- Time.add(alarm_time, @alarm_window_size),
+         :lt <- Time.compare(current_time, upper_bound) do
       true
     else
       _ -> false
     end
   end
 
-  defp weekday?(day) do
-    Date.day_of_week(day) < 6
-  end
+  defp alarm_for(day), do: AlarmQuery.for_day(day)
 end
