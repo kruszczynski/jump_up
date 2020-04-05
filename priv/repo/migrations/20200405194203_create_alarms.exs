@@ -1,6 +1,5 @@
 defmodule JumpUp.Repo.Migrations.CreateAlarms do
   use Ecto.Migration
-  alias JumpUp.Schema.Alarm
 
   def change do
     create table(:alarms) do
