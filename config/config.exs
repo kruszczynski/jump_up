@@ -19,6 +19,7 @@ config :jump_up, JumpUp.Repo,
 
 if Mix.env() == :test do
   config :logger, level: :error
+  import_config("test.exs")
 end
 
 if Mix.env() == :prod do

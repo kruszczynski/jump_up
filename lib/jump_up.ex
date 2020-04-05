@@ -15,7 +15,7 @@ defmodule JumpUp do
       }
     ]
 
-    Logger.info("Starting core supervisor")
+    Logger.info("Starting JumpUp application")
     # Now we start the supervisor with the children and a strategy
     Supervisor.start_link(children, strategy: :one_for_one)
   end
