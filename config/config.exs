@@ -9,6 +9,14 @@ config :jump_up, :timer, schedule: [~T[06:45:00]]
 
 config :logger, level: :info
 
+config :jump_up, ecto_repos: [JumpUp.Repo]
+
+config :jump_up, JumpUp.Repo,
+  database: "jump_up",
+  username: "postgres",
+  password: "postgres",
+  hostname: "localhost"
+
 if Mix.env() == :test do
   config :logger, level: :error
 end

@@ -15,7 +15,7 @@ defmodule JumpUp.MixProject do
   def application do
     [
       mod: {JumpUp, []},
-      applications: [:porcelain],
+      applications: [:porcelain, :ecto_sql, :postgrex],
       extra_applications: [:logger]
     ]
   end
@@ -24,6 +24,8 @@ defmodule JumpUp.MixProject do
   defp deps do
     [
       {:porcelain, "~> 2.0"},
+      {:ecto_sql, "~> 3.0"},
+      {:postgrex, ">= 0.0.0"},
       {:mock, "~> 0.3.0", only: :test}
     ]
   end

@@ -4,10 +4,11 @@ defmodule JumpUp do
   """
   use Application
   require Logger
-  alias JumpUp.Timer
+  alias JumpUp.{Repo, Timer}
 
   def start(_type, _args) do
     children = [
+      Repo,
       %{
         id: Timer,
         start: {Timer, :start_link, []}
