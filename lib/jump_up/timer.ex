@@ -43,8 +43,10 @@ defmodule JumpUp.Timer do
     end
   end
 
+  @tick_frequency_ms 60_000
+
   defp schedule_tick() do
     Logger.debug("#{__MODULE__} scheduling tick")
-    Process.send_after(__MODULE__, :tick, 10_000)
+    Process.send_after(__MODULE__, :tick, @tick_frequency_ms)
   end
 end
