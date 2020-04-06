@@ -13,7 +13,8 @@ config :jump_up, JumpUp.Repo,
   database: "jump_up",
   username: "postgres",
   password: "postgres",
-  hostname: "localhost"
+  hostname: "localhost",
+  connect_timeout: 180_000
 
 if Mix.env() == :test do
   config :logger, level: :error
