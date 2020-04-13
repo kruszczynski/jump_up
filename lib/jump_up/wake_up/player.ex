@@ -2,16 +2,38 @@ defmodule JumpUp.WakeUp.Player do
   @music_dir Application.fetch_env!(:jump_up, :player)[:music_dir]
 
   @player_exe "omxplayer"
-  @default_options ["--vol", "-1500", "-o", "alsa:bluealsa"]
-  @volume_up_interval 45_000
+  @options ["--vol", "-1500", "-o", "alsa:bluealsa"]
 
+  @volume_up_interval_ms 45_000
+
+  @killcheck_interval_ms 60_000
+
+  @initial_state %{playing: false, proc: nil, started_at: nil}
+
+  use GenServer
   require Logger
 
   alias Porcelain.Process, as: Proc
 
+  def start_link do
+    Logger.debug("#{__MODULE__} starting")
+    GenServer.start_link(__MODULE__, @initial_state, name: __MODULE__)
+  end
+
   def start_playing do
-    options = @default_options ++ [@music_dir]
-    Logger.info("Playing with options: #{options}")
+    send(__MODULE__, :start_playing)
+  end
+
+  ## Defining GenServer Callbacks
+
+  @impl true
+  def init(state), do: {:ok, state}
+
+  @impl true
+  def handle_info(:start_playing, state) do
+    {:ok, wake_up_file} = random_file()
+    options = @options ++ [wake_up_file]
+    Logger.info("Starting playing with options: #{options}")
 
     proc =
       Porcelain.spawn(@player_exe, options,
@@ -19,26 +41,48 @@ defmodule JumpUp.WakeUp.Player do
         out: {:path, "log/player.log"}
       )
 
-    Logger.info("Successfully started Playing")
+    Logger.info("Successfully started playing")
+    Process.send_after(__MODULE__, :volume_up, @volume_up_interval_ms)
+    Process.send_after(__MODULE__, :killcheck, @killcheck_interval_ms)
 
-    Process.sleep(@volume_up_interval)
-    Proc.send_input(proc, "+")
-    Logger.info("Volume turned up")
+    {:noreply,
+     Map.merge(state, %{playing: true, proc: proc, started_at: DateTime.utc_now(), volume: -15})}
+  end
 
-    Process.sleep(@volume_up_interval)
+  def handle_info(:volume_up, state = %{proc: proc, volume: volume}) do
+    new_volume = volume + 3
     Proc.send_input(proc, "+")
-    Logger.info("Volume turned up")
+    Logger.info("Volume turned up to #{new_volume}")
 
-    Process.sleep(@volume_up_interval)
-    Proc.send_input(proc, "+")
-    Logger.info("Volume turned up")
+    if new_volume < 0 do
+      Process.send_after(__MODULE__, :volume_up, @volume_up_interval_ms)
+    end
 
-    Process.sleep(@volume_up_interval)
-    Proc.send_input(proc, "+")
-    Logger.info("Volume turned up")
+    {:noreply, Map.put(state, :volume, new_volume)}
+  end
 
-    Process.sleep(@volume_up_interval)
-    Proc.send_input(proc, "+")
-    Logger.info("Volume turned up")
+  def handle_info(:killcheck, state = %{proc: proc, started_at: started_at}) do
+    diff = DateTime.diff(DateTime.utc_now(), started_at)
+    Logger.info("We are #{diff} seconds in!")
+
+    if diff > 1800 do
+      Logger.info("Shutting things down since 30 minutes passed")
+      Proc.send_input(proc, "q")
+      Proc.stop(proc)
+      {:noreply, @initial_state}
+    else
+      Process.send_after(__MODULE__, :killcheck, @killcheck_interval_ms)
+      {:noreply, state}
+    end
+  end
+
+  defp random_file() do
+    with {:ok, files} <- File.ls(@music_dir),
+         mp3s <- Enum.filter(files, &String.match?(&1, ~r/.*\.mp3$/)),
+         selected_one <- Enum.random(mp3s) do
+      {:ok, "#{@music_dir}/#{selected_one}"}
+    else
+      _ -> {:error, :random_music_file_failed}
+    end
   end
 end
