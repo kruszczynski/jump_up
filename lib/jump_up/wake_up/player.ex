@@ -8,6 +8,8 @@ defmodule JumpUp.WakeUp.Player do
 
   @killcheck_interval_ms 60_000
 
+  @max_playing_time_seconds 1800
+
   @initial_state %{playing: false, proc: nil, started_at: nil}
 
   use GenServer
@@ -22,6 +24,10 @@ defmodule JumpUp.WakeUp.Player do
 
   def start_playing do
     send(__MODULE__, :start_playing)
+  end
+
+  def stop do
+    send(__MODULE__, :stop)
   end
 
   ## Defining GenServer Callbacks
@@ -65,15 +71,20 @@ defmodule JumpUp.WakeUp.Player do
     diff = DateTime.diff(DateTime.utc_now(), started_at)
     Logger.info("We are #{diff} seconds in!")
 
-    if diff > 1800 do
+    if diff > @max_playing_time_seconds do
       Logger.info("Shutting things down since 30 minutes passed")
-      Proc.send_input(proc, "q")
-      Proc.stop(proc)
+      send(self(), :stop)
       {:noreply, @initial_state}
     else
       Process.send_after(__MODULE__, :killcheck, @killcheck_interval_ms)
       {:noreply, state}
     end
+  end
+
+  def handle_info(:stop, state = %{proc: proc}) do
+    Proc.send_input(proc, "q")
+    Proc.stop(proc)
+    {:noreply, state}
   end
 
   defp random_file() do
