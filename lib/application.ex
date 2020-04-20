@@ -5,6 +5,7 @@ defmodule JumpUp do
   use Application
   require Logger
   alias JumpUp.{Repo, Timer}
+  alias JumpUp.WakeUp.Player
 
   def start(_type, _args) do
     children = [

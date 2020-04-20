@@ -67,7 +67,7 @@ defmodule JumpUp.WakeUp.Player do
     {:noreply, Map.put(state, :volume, new_volume)}
   end
 
-  def handle_info(:killcheck, state = %{proc: proc, started_at: started_at}) do
+  def handle_info(:killcheck, state = %{started_at: started_at}) do
     diff = DateTime.diff(DateTime.utc_now(), started_at)
     Logger.info("We are #{diff} seconds in!")
 
