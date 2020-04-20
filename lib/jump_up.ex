@@ -12,6 +12,10 @@ defmodule JumpUp do
       %{
         id: Timer,
         start: {Timer, :start_link, []}
+      },
+      %{
+        id: Player,
+        start: {Player, :start_link, []}
       }
     ]
 
