@@ -74,17 +74,18 @@ defmodule JumpUp.WakeUp.Player do
     if diff > @max_playing_time_seconds do
       Logger.info("Shutting things down since 30 minutes passed")
       send(self(), :stop)
-      {:noreply, @initial_state}
     else
       Process.send_after(__MODULE__, :killcheck, @killcheck_interval_ms)
-      {:noreply, state}
     end
+
+    {:noreply, state}
   end
 
-  def handle_info(:stop, state = %{proc: proc}) do
+  def handle_info(:stop, %{proc: proc}) do
     Proc.send_input(proc, "q")
     Proc.stop(proc)
-    {:noreply, state}
+    Logger.info("Successfully stopped porcelain process")
+    {:noreply, @initial_state}
   end
 
   defp random_file() do
