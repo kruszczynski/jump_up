@@ -52,7 +52,7 @@ defmodule JumpUp.WakeUp.Player do
         err: :out
       )
 
-    Logger.info("Successfully started playing")
+    Logger.info("Probably successfully started playing")
     Process.send_after(__MODULE__, :volume_up, @volume_up_interval_ms)
     Process.send_after(__MODULE__, :killcheck, @killcheck_interval_ms)
 
@@ -60,7 +60,10 @@ defmodule JumpUp.WakeUp.Player do
      Map.merge(state, %{playing: true, proc: proc, started_at: DateTime.utc_now(), volume: -15})}
   end
 
-  def handle_info(:volume_up, state = %{playing: false}), do: {:noreply, state}
+  def handle_info(:volume_up, state = %{playing: false}) do
+    Logger.info("Received :volume_up but not playing")
+    {:noreply, state}
+  end
 
   def handle_info(:volume_up, state = %{proc: proc, volume: volume}) do
     new_volume = volume + 3
@@ -74,7 +77,10 @@ defmodule JumpUp.WakeUp.Player do
     {:noreply, Map.put(state, :volume, new_volume)}
   end
 
-  def handle_info(:killcheck, state = %{playing: false}), do: {:noreply, state}
+  def handle_info(:killcheck, state = %{playing: false}) do
+    Logger.info("Received :killcheck but not playing")
+    {:noreply, state}
+  end
 
   def handle_info(:killcheck, state = %{started_at: started_at}) do
     diff = DateTime.diff(DateTime.utc_now(), started_at)
