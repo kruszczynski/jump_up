@@ -10,7 +10,9 @@ defmodule JumpUp.WakeUp.Player do
 
   @max_playing_time_seconds 1800
 
-  @pcm_not_found "Couldn't get BlueALSA PCM: PCM not found"
+  @pcm_not_found_message "Couldn't get BlueALSA PCM: PCM not found"
+
+  @retry_timeout_ms 7_500
 
   @initial_state %{playing: false, retries_count: 0, proc: nil, started_at: nil}
 
@@ -95,13 +97,19 @@ defmodule JumpUp.WakeUp.Player do
     {:noreply, @initial_state}
   end
 
-  def handle_info({_from, :data, :out, message}, state) do
+  def handle_info({_from, :data, :out, @pcm_not_found_message}, state) do
+    Logger.info("PCM not found, retrying")
+    Process.sleep(@retry_timeout_ms)
+    {:noreply, state}
+  end
+
+  def handle_info({_from, :data, _descriptor, message}, state) do
     Logger.info("Porcelain log: #{message}")
     {:noreply, state}
   end
 
   def handle_info({_from, :result, rest}, state) do
-    Logger.info("Porcelain done #{inspect(rest)}")
+    Logger.info("Porcelain result #{inspect(rest)}")
     {:noreply, state}
   end
 
