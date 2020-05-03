@@ -3,6 +3,8 @@ defmodule JumpUp.WakeUp do
   alias JumpUp.WakeUp.Megaboom
   alias JumpUp.WakeUp.Player
 
+  @megaboom_turn_on_timeout_ms 7_500
+
   def trigger() do
     Logger.info("Wake up procedure initiated")
     Task.start_link(__MODULE__, :start, [])
@@ -10,7 +12,7 @@ defmodule JumpUp.WakeUp do
 
   def start() do
     Megaboom.turn_on()
-    Process.sleep(5_000)
+    Process.sleep(@megaboom_turn_on_timeout_ms)
     Player.start_playing()
   end
 end

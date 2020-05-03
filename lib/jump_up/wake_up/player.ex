@@ -10,7 +10,9 @@ defmodule JumpUp.WakeUp.Player do
 
   @max_playing_time_seconds 1800
 
-  @initial_state %{playing: false, proc: nil, started_at: nil}
+  @pcm_not_found "Couldn't get BlueALSA PCM: PCM not found"
+
+  @initial_state %{playing: false, retries_count: 0, proc: nil, started_at: nil}
 
   use GenServer
   require Logger
@@ -44,7 +46,8 @@ defmodule JumpUp.WakeUp.Player do
     proc =
       Porcelain.spawn(@player_exe, options,
         in: :receive,
-        out: {:path, "log/player.log"}
+        out: {:send, self()},
+        err: :out
       )
 
     Logger.info("Successfully started playing")
@@ -54,6 +57,8 @@ defmodule JumpUp.WakeUp.Player do
     {:noreply,
      Map.merge(state, %{playing: true, proc: proc, started_at: DateTime.utc_now(), volume: -15})}
   end
+
+  def handle_info(:volume_up, state = %{playing: false}), do: {:noreply, state}
 
   def handle_info(:volume_up, state = %{proc: proc, volume: volume}) do
     new_volume = volume + 3
@@ -66,6 +71,8 @@ defmodule JumpUp.WakeUp.Player do
 
     {:noreply, Map.put(state, :volume, new_volume)}
   end
+
+  def handle_info(:killcheck, state = %{playing: false}), do: {:noreply, state}
 
   def handle_info(:killcheck, state = %{started_at: started_at}) do
     diff = DateTime.diff(DateTime.utc_now(), started_at)
@@ -86,6 +93,16 @@ defmodule JumpUp.WakeUp.Player do
     Proc.stop(proc)
     Logger.info("Successfully stopped porcelain process")
     {:noreply, @initial_state}
+  end
+
+  def handle_info({_from, :data, :out, message}, state) do
+    Logger.info("Porcelain log: #{message}")
+    {:noreply, state}
+  end
+
+  def handle_info({_from, :result, rest}, state) do
+    Logger.info("Porcelain done #{inspect(rest)}")
+    {:noreply, state}
   end
 
   defp random_file() do
