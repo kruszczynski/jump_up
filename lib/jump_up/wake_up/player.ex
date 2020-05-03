@@ -97,10 +97,11 @@ defmodule JumpUp.WakeUp.Player do
     {:noreply, @initial_state}
   end
 
-  def handle_info({_from, :data, :out, @pcm_not_found_message}, state) do
-    Logger.info("PCM not found, retrying")
-    Process.sleep(@retry_timeout_ms)
-    {:noreply, state}
+  def handle_info({_from, :data, :out, @pcm_not_found_message}, state = %{retries_count: retries}) do
+    new_retries = retries + 1
+    Logger.info("PCM not found, retry no: #{new_retries}")
+    Process.send_after(__MODULE__, :start_playing, @retry_timeout_ms)
+    {:noreply, Map.merge(state, %{playing: false, retries_count: new_retries})}
   end
 
   def handle_info({_from, :data, _descriptor, message}, state) do
